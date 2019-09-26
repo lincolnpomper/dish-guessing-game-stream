@@ -12,6 +12,8 @@ import javax.swing.*;
 
 public class Main implements GuessManager, StartGameManager {
 
+	private static final String BASE_PATH = "src/main/resources/";
+
 	private Frame frame;
 
 	private Main() {
@@ -33,7 +35,7 @@ public class Main implements GuessManager, StartGameManager {
 	public static void main(String[] args) {
 
 		DataLoader dataLoader = new DataLoader(GameDataRepository.getInstance());
-		dataLoader.setupData();
+		dataLoader.setupData(BASE_PATH);
 
 		new Main();
 	}

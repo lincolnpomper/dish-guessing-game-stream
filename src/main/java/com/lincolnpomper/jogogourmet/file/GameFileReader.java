@@ -10,8 +10,7 @@ import java.util.Map;
 
 class GameFileReader {
 
-	private static final String BASE_PATH = "src/main/resources/";
-
+	private static String basePath;
 	private static final String SEPARATOR = ",";
 	private static GameFileReader me;
 
@@ -21,7 +20,10 @@ class GameFileReader {
 	private GameFileReader() {
 	}
 
-	static GameFileReader getInstance() {
+	static GameFileReader getInstance(String basePath) {
+
+		GameFileReader.basePath = basePath;
+
 		if (me == null) {
 			me = new GameFileReader();
 			me.parseCSV();
@@ -96,7 +98,7 @@ class GameFileReader {
 		private String value;
 
 		ResourceType(String value) {
-			this.value = BASE_PATH + value;
+			this.value = basePath + value;
 		}
 
 		String getValue() {

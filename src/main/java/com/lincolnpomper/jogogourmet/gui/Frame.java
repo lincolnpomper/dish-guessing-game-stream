@@ -57,7 +57,6 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 		compSouthButtons.add(buttonAgain);
 		compSouthButtons.add(Box.createHorizontalStrut(100));
 
-
 		this.getContentPane().add(compNorth, BorderLayout.NORTH);
 		this.getContentPane().add(compCenter, BorderLayout.CENTER);
 		this.getContentPane().add(compSouthButtons, BorderLayout.SOUTH);
@@ -74,11 +73,21 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 
 	public Answer getAnswer() {
 
-		Answer answer = new Answer(buttonYesPressed, buttonNoPressed, inputNewFood.getText());
+		String newFoodName = getNewFoodName();
+		Answer answer = new Answer(buttonYesPressed, buttonNoPressed, newFoodName);
 
 		resetAnswer();
 
 		return answer;
+	}
+
+	private String getNewFoodName() {
+
+		String newFoodName = inputNewFood.getText();
+		if (newFoodName != null && newFoodName.isEmpty()) {
+			newFoodName = null;
+		}
+		return newFoodName;
 	}
 
 	public boolean hasAnswer() {

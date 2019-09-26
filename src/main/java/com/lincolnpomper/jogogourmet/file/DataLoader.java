@@ -14,9 +14,9 @@ public class DataLoader {
 		this.gameDataRepository = gameDataRepository;
 	}
 
-	public void setupData() {
+	public void setupData(String basePath) {
 
-		List<GameFileData> foodsFileData = GameFileReader.getInstance().getList(GameFileReader.ResourceType.Food);
+		List<GameFileData> foodsFileData = GameFileReader.getInstance(basePath).getList(GameFileReader.ResourceType.Food);
 
 		foodsFileData.forEach(data -> gameDataRepository.save(new Food(data)));
 
