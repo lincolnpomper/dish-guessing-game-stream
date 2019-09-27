@@ -9,7 +9,7 @@ import java.util.Set;
 public class GameDataRepository {
 
 	private static GameDataRepository me;
-	Set<Food> foodSet;
+	private Set<Food> foodSet;
 
 	private GameDataRepository() {
 		foodSet = new HashSet<>();
@@ -24,6 +24,7 @@ public class GameDataRepository {
 
 	public void save(Food food) {
 		foodSet.add(food);
+		System.out.println("Log: saved " + food);
 	}
 
 	public Set<Food> findAll() {

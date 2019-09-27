@@ -15,6 +15,7 @@ public class Main implements GuessManager, StartGameManager {
 	private static final String BASE_PATH = "src/main/resources/";
 
 	private Frame frame;
+	private Food nextParent;
 
 	private Main() {
 
@@ -22,8 +23,6 @@ public class Main implements GuessManager, StartGameManager {
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
 		frame.showScreen();
-
-		startNewGame();
 	}
 
 	private void startNewGame() {
@@ -49,18 +48,31 @@ public class Main implements GuessManager, StartGameManager {
 	}
 
 	@Override public Answer getAnswer() {
-		final Answer answer = frame.getAnswer();
-		if (answer.getNewFood() != null) {
-			GameDataRepository.getInstance().save(new Food(answer.getNewFood()));
+		return frame.getAnswer();
+	}
+
+	@Override public void saveNewFoodBeforeStart(String newFoodName, String newFoodTipName) {
+		if (newFoodName != null) {
+			GameDataRepository.getInstance().save(new Food(newFoodName, newFoodTipName, nextParent));
 		}
-		return answer;
 	}
 
 	@Override public void showTipOrGuess(String tip) {
 		frame.showTipOrGuess(tip);
 	}
 
-	@Override public void found(Food rightGuess) {
+	@Override public void found(String rightGuess) {
 		frame.showFinalAnswer(rightGuess);
+	}
+
+	@Override public void showInput() {
+		frame.showInputForNewFood();
+	}
+
+	@Override public void rememberNextParent(Food nextParent) {
+		this.nextParent = nextParent;
+		if (nextParent != null) {
+			frame.setParentFoodName(nextParent.getName());
+		}
 	}
 }

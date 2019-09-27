@@ -26,7 +26,7 @@ Essa aplicação encontra um nome de comida que o jogador pensa antes de começa
 
 1. Clone esse repositório
 2. Importe o projeto em sua IDE de preferência
-3. Compile e Execute a Classe Main
+3. Compile o projeto e execute a classe Main
 
 ---
 

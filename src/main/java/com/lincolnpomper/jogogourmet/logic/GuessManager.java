@@ -8,5 +8,9 @@ public interface GuessManager {
 
 	void showTipOrGuess(String tip);
 
-	void found(Food rightGuess);
+	void found(String rightGuess);
+
+	void showInput();
+
+	void rememberNextParent(Food forParent);
 }

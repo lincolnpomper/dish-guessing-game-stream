@@ -2,28 +2,33 @@ package com.lincolnpomper.jogogourmet.logic;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class Game implements Runnable {
 
 	private final GuessManager guessManager;
 
-	private Set<Food> foodSet;
-	private Food currentGuess;
+	private Set<FoodGuess> foodGuessSet;
 
 	public Game(GuessManager guessManager, Set<Food> foodSet) {
 
 		this.guessManager = guessManager;
-		this.foodSet = foodSet;
+		this.foodGuessSet = foodSet.stream().map(FoodGuess::new).collect(Collectors.toSet());
 
-		setupFirstGuess(foodSet);
+		setupFirstGuess(foodGuessSet);
 	}
 
-	private void setupFirstGuess(Set<Food> foodSet) {
+	private void setupFirstGuess(Set<FoodGuess> foodSet) {
 
-		final Optional<Food> foodOptional = foodSet.stream().filter(Food::noParent).findFirst();
+		final Optional<FoodGuess> foodOptional = foodSet.stream().filter(Food::noParent).findFirst();
 
 		if (foodOptional.isPresent()) {
-			currentGuess = foodOptional.get();
+
+			FoodGuess guess = foodOptional.get();
+			guess.setCurrent(true);
+			guess.setTip(true);
+
 		} else {
 			throw new RuntimeException("must have one food without parent");
 		}
@@ -35,8 +40,8 @@ public class Game implements Runnable {
 
 		while (run) {
 
-			String tipOrGuess = currentGuess.hasTip() ? currentGuess.getTip() : currentGuess.getName();
-			guessManager.showTipOrGuess(tipOrGuess);
+			FoodGuess currentGuess = getCurrent();
+			guessManager.showTipOrGuess(currentGuess.getGuess());
 
 			while (!guessManager.hasNext()) {
 				waitForInput();
@@ -47,11 +52,22 @@ public class Game implements Runnable {
 			if (check(answer)) {
 				run = false;
 			} else {
-				getNextGuess(answer, foodSet);
+
+				processNextGuess(answer);
+
+				if (!hasCurrent()) {
+					run = false;
+				}
 			}
 		}
 
-		guessManager.found(currentGuess);
+		final Optional<FoodGuess> optionalFoodGuess = foodGuessSet.stream().filter(FoodGuess::isCurrent).findFirst();
+
+		if (optionalFoodGuess.isPresent()) {
+			guessManager.found(optionalFoodGuess.get().getGuess());
+		} else {
+			guessManager.showInput();
+		}
 	}
 
 	private boolean check(Answer answer) {
@@ -60,29 +76,86 @@ public class Game implements Runnable {
 			throw new RuntimeException("must have an answer");
 		}
 
-		return answer.isYes() && foodSet.stream().noneMatch(f -> f.hasParent() && f.getParent().equals(currentGuess));
+		if (answer.isNo()) {
+			return false;
+		}
+
+		return answer.isYes() && !getCurrent().isTip();
 	}
 
-	private void getNextGuess(Answer answer, Set<Food> foodSet) {
+	private void processNextGuess(Answer answer) {
 
-		Optional<Food> foodOptional = Optional.empty();
+		final FoodGuess currentGuess = getCurrent();
+		FoodGuess nextCurrentGuess = null;
 
 		if (answer.isYes()) {
 
-			foodOptional = foodSet.stream().filter(f -> f.hasTip() && f.hasParent() && f.getParent().equals(currentGuess)).findFirst();
-			if (foodOptional.isEmpty()) {
-				foodOptional = foodSet.stream().filter(f -> !f.hasTip() && f.hasParent() && f.getParent().equals(currentGuess)).findFirst();
+			if (currentGuess.isTip()) {
+				currentGuess.setTip(false);
+			} else {
+				currentGuess.setVisited(true);
+				currentGuess.setCurrent(false);
+				markNextCurrent(currentGuess);
 			}
 
 		} else if (answer.isNo()) {
-			foodOptional = foodSet.stream().filter(f -> !f.hasTip() && f.hasParent() && f.getParent().equals(currentGuess)).findFirst();
+
+			currentGuess.setVisited(true);
+			currentGuess.setCurrent(false);
+
+			Optional<FoodGuess> optionalNext = Optional.empty();
+
+			if (currentGuess.isTip() && !currentGuess.hasParent()) {
+				optionalNext = foodGuessSet.stream()
+						.filter(Predicate.not(Food::hasParent))
+						.filter(Predicate.not(FoodGuess::isVisited))
+						.findFirst();
+			}
+
+			if (optionalNext.isEmpty()) {
+				optionalNext = foodGuessSet.stream().filter(Food::hasParent).filter(f -> f.getParent().equals(currentGuess)).findFirst();
+			}
+
+			optionalNext.ifPresent(f -> f.setCurrent(true));
+
+			if (hasCurrent()) {
+
+				nextCurrentGuess = getCurrent();
+
+				if (nextCurrentGuess.hasTip()) {
+					nextCurrentGuess.setTip(true);
+				}
+
+			} else {
+				System.out.println("Log: could not find the next guess");
+			}
 		}
 
-		if (foodOptional.isPresent()) {
-			currentGuess = foodOptional.get();
-		} else {
-			throw new RuntimeException("could not find the next guess");
+		if (nextCurrentGuess != null || hasCurrent()) {
+			guessManager.rememberNextParent(nextCurrentGuess != null ? nextCurrentGuess : currentGuess);
 		}
+	}
+
+	private void markNextCurrent(FoodGuess currentGuess) {
+
+		Optional<FoodGuess> optionalNext =
+				foodGuessSet.stream().filter(Food::hasParent).filter(f -> f.getParent().equals(currentGuess)).findFirst();
+
+		optionalNext.ifPresent(f -> f.setCurrent(true));
+	}
+
+	private FoodGuess getCurrent() {
+
+		final Optional<FoodGuess> optional = foodGuessSet.stream().filter(FoodGuess::isCurrent).findFirst();
+		if (optional.isEmpty()) {
+			throw new RuntimeException("should have a current food");
+		}
+
+		return optional.get();
+	}
+
+	private boolean hasCurrent() {
+		return foodGuessSet.stream().anyMatch(FoodGuess::isCurrent);
 	}
 
 	private void waitForInput() {

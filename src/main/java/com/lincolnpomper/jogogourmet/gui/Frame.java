@@ -1,9 +1,7 @@
 package com.lincolnpomper.jogogourmet.gui;
 
-import com.lincolnpomper.jogogourmet.Main;
 import com.lincolnpomper.jogogourmet.StartGameManager;
 import com.lincolnpomper.jogogourmet.logic.Answer;
-import com.lincolnpomper.jogogourmet.logic.Food;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,13 +12,19 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 
 	private JLabel labelQuestion;
 	private JTextField inputNewFood;
+	private JTextField inputNewFoodTip;
 
-	private JButton buttonYes;
-	private JButton buttonNo;
-	private JButton buttonAgain;
+	private final JButton buttonStart = new JButton("Iniciar");
+	private final JButton buttonYes = new JButton("Sim");
+	private final JButton buttonNo = new JButton("Não");
+	private final JButton buttonAgain = new JButton("Jogar novamente");
+	private final JButton buttonInputOk = new JButton("Ok");
+	private final JButton buttonInputTipOk = new JButton("Ok");
 
 	private boolean buttonYesPressed;
 	private boolean buttonNoPressed;
+
+	private String parentFoodName;
 
 	private StartGameManager startGameManager;
 
@@ -30,16 +34,16 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 
 		this.startGameManager = startGameManager;
 
-		labelQuestion = new JLabel("Pense em um prato que gosta.");
+		labelQuestion = new JLabel();
 		inputNewFood = new JTextField(10);
+		inputNewFoodTip = new JTextField(10);
 
-		buttonYes = new JButton("Sim");
+		buttonStart.addMouseListener(this);
 		buttonYes.addMouseListener(this);
-		buttonNo = new JButton("Não");
 		buttonNo.addMouseListener(this);
-
-		buttonAgain = new JButton("Jogar novamente");
 		buttonAgain.addMouseListener(this);
+		buttonInputOk.addMouseListener(this);
+		buttonInputTipOk.addMouseListener(this);
 
 		this.getContentPane().setLayout(new BorderLayout());
 
@@ -48,33 +52,33 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 
 		JPanel compCenter = new JPanel();
 		compCenter.add(inputNewFood);
+		compCenter.add(inputNewFoodTip);
 
 		JPanel compSouthButtons = new JPanel();
 		compSouthButtons.setLayout(new FlowLayout());
 		compSouthButtons.add(Box.createHorizontalStrut(100));
-		compSouthButtons.add(buttonNo);
+		compSouthButtons.add(buttonStart);
 		compSouthButtons.add(buttonYes);
+		compSouthButtons.add(buttonNo);
 		compSouthButtons.add(buttonAgain);
+		compSouthButtons.add(buttonInputOk);
+		compSouthButtons.add(buttonInputTipOk);
 		compSouthButtons.add(Box.createHorizontalStrut(100));
 
 		this.getContentPane().add(compNorth, BorderLayout.NORTH);
 		this.getContentPane().add(compCenter, BorderLayout.CENTER);
 		this.getContentPane().add(compSouthButtons, BorderLayout.SOUTH);
 
-		disableAnswerButtons();
 		hidePlayAgainButton();
-		hideNewFoodInput();
-	}
-
-	public void showScreen() {
-		this.pack();
-		this.setVisible(true);
+		hideNewFoodInputAndOkButton();
+		hideNewFoodInputTipAndOkButton();
+		hideYesNoButtons();
+		showStartButtonAndStartText();
 	}
 
 	public Answer getAnswer() {
 
-		String newFoodName = getNewFoodName();
-		Answer answer = new Answer(buttonYesPressed, buttonNoPressed, newFoodName);
+		Answer answer = new Answer(safeGetButtonYes(), safeGetButtonNo());
 
 		resetAnswer();
 
@@ -90,34 +94,64 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 		return newFoodName;
 	}
 
+	private String getNewFoodTipName() {
+
+		String newFoodTipName = inputNewFoodTip.getText();
+		if (newFoodTipName != null && newFoodTipName.isEmpty()) {
+			newFoodTipName = null;
+		}
+		return newFoodTipName;
+	}
+
 	public boolean hasAnswer() {
-		return buttonYesPressed || buttonNoPressed;
+		return safeGetButtonYes() || safeGetButtonNo();
 	}
 
 	private void resetAnswer() {
-		buttonYesPressed = false;
-		buttonNoPressed = false;
+		safeChangeButtonYes(false);
+		safeChangeButtonNo(false);
 		inputNewFood.setText("");
+		inputNewFoodTip.setText("");
 	}
 
-	@Override public void mouseClicked(MouseEvent e) {
-		if (e.getSource() != null && e.getSource().equals(buttonYes)) {
-			this.buttonYesPressed = true;
-			disableAnswerButtons();
-		} else if (e.getSource() != null && e.getSource().equals(buttonNo)) {
-			this.buttonNoPressed = true;
-			disableAnswerButtons();
-		} else if (e.getSource() != null && e.getSource().equals(buttonAgain)) {
-			hidePlayAgainButton();
-			showYesNoButtons();
+	public void showInputForNewFood() {
+		hideYesNoButtons();
+		showNewFoodInputAndOkButton();
+	}
+
+	@Override public void mouseReleased(MouseEvent e) {
+
+		final Object button = e.getSource();
+
+		if (button == null) {
+			return;
+		}
+
+		if (button.equals(buttonStart)) {
 			startGameManager.startAgain();
+			hideStartButton();
+			showYesNoButtons();
+		} else if (button.equals(buttonYes)) {
+			safeChangeButtonYes(true);
+		} else if (button.equals(buttonNo)) {
+			safeChangeButtonNo(true);
+		} else if (button.equals(buttonAgain)) {
+			hidePlayAgainButton();
+			showStartButtonAndStartText();
+		} else if (button.equals(buttonInputOk)) {
+			hideNewFoodInputAndOkButton();
+			showNewFoodInputTipAndOkButton();
+		} else if (button.equals(buttonInputTipOk)) {
+			startGameManager.saveNewFoodBeforeStart(getNewFoodName(), getNewFoodTipName());
+			hideNewFoodInputTipAndOkButton();
+			showStartButtonAndStartText();
 		}
 	}
 
 	@Override public void mousePressed(MouseEvent e) {
 	}
 
-	@Override public void mouseReleased(MouseEvent e) {
+	@Override public void mouseClicked(MouseEvent e) {
 	}
 
 	@Override public void mouseEntered(MouseEvent e) {
@@ -126,35 +160,57 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 	@Override public void mouseExited(MouseEvent e) {
 	}
 
-	public void showFinalAnswer(Food finalAnswer) {
-		this.labelQuestion.setText("Acertei de novo! A comida é " + finalAnswer.getName());
+	private void safeChangeButtonYes(boolean value) {
+		synchronized (buttonYes) {
+			this.buttonYesPressed = value;
+		}
+	}
 
-		showPlayAgainButton();
-		hideYesNoButtons();
+	private void safeChangeButtonNo(boolean value) {
+		synchronized (buttonNo) {
+			this.buttonNoPressed = value;
+		}
+	}
+
+	private boolean safeGetButtonYes() {
+		synchronized (buttonYes) {
+			return this.buttonYesPressed;
+		}
+	}
+
+	private boolean safeGetButtonNo() {
+		synchronized (buttonNo) {
+			return this.buttonNoPressed;
+		}
+	}
+
+	public void showScreen() {
+		this.pack();
+		this.setVisible(true);
 	}
 
 	public void showTipOrGuess(String tipOrGuess) {
 		labelQuestion.setText("O prato que você pensou é " + tipOrGuess + "?");
-		offerAnswerButtons();
 	}
 
-	private void disableAnswerButtons() {
-		buttonYes.setEnabled(false);
-		buttonNo.setEnabled(false);
+	private void showStartButtonAndStartText() {
+		buttonStart.setVisible(true);
+		labelQuestion.setText("Pense em um prato que gosta.");
+		this.pack();
 	}
 
-	private void offerAnswerButtons() {
-		buttonYes.setEnabled(true);
-		buttonNo.setEnabled(true);
-	}
-
-	private void hidePlayAgainButton() {
-		buttonAgain.setVisible(false);
+	private void hideStartButton() {
+		buttonStart.setVisible(false);
 		this.pack();
 	}
 
 	private void showPlayAgainButton() {
 		buttonAgain.setVisible(true);
+		this.pack();
+	}
+
+	private void hidePlayAgainButton() {
+		buttonAgain.setVisible(false);
 		this.pack();
 	}
 
@@ -170,13 +226,44 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 		this.pack();
 	}
 
-	private void hideNewFoodInput() {
-		inputNewFood.setVisible(false);
+	private void showNewFoodInputAndOkButton() {
+		inputNewFood.setVisible(true);
+		buttonInputOk.setVisible(true);
+		labelQuestion.setText("Desisto. Qual prato você pensou?");
 		this.pack();
 	}
 
-	private void showNewFoodInput() {
-		inputNewFood.setVisible(true);
+	private void hideNewFoodInputAndOkButton() {
+		inputNewFood.setVisible(false);
+		buttonInputOk.setVisible(false);
 		this.pack();
+	}
+
+	private void showNewFoodInputTipAndOkButton() {
+
+		inputNewFoodTip.setVisible(true);
+		buttonInputTipOk.setVisible(true);
+
+		String newFoodName = inputNewFood.getText();
+		labelQuestion.setText(newFoodName + " é ________, mas " + parentFoodName + " não.");
+
+		this.pack();
+	}
+
+	private void hideNewFoodInputTipAndOkButton() {
+		inputNewFoodTip.setVisible(false);
+		buttonInputTipOk.setVisible(false);
+		this.pack();
+	}
+
+	public void showFinalAnswer(String finalAnswer) {
+		this.labelQuestion.setText("Acertei de novo! A comida é " + finalAnswer);
+
+		showPlayAgainButton();
+		hideYesNoButtons();
+	}
+
+	public void setParentFoodName(String parentFoodName) {
+		this.parentFoodName = parentFoodName;
 	}
 }

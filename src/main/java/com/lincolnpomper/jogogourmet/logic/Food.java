@@ -16,8 +16,10 @@ public class Food {
 		this.tip = data.values[0];
 	}
 
-	public Food(String name) {
+	public Food(String name, String tip, Food parent) {
 		this.name = name;
+		this.tip = tip;
+		this.parent = parent;
 	}
 
 	public String getName() {
@@ -60,8 +62,6 @@ public class Food {
 
 		if (this == o)
 			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
 
 		Food food = (Food) o;
 

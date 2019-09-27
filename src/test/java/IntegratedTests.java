@@ -1,6 +1,5 @@
 import com.lincolnpomper.jogogourmet.data.GameDataRepository;
 import com.lincolnpomper.jogogourmet.file.DataLoader;
-import com.lincolnpomper.jogogourmet.logic.Food;
 import com.lincolnpomper.jogogourmet.logic.Game;
 import com.lincolnpomper.jogogourmet.logic.GuessManager;
 import org.junit.Assert;
@@ -18,15 +17,15 @@ public class IntegratedTests {
 		DataLoader dataLoader = new DataLoader(GameDataRepository.getInstance());
 		dataLoader.setupData(BASE_PATH);
 
-		guessManager = new GuessManagerAlwaysAnswerYesMock();
+		guessManager = new GuessManagerPredefinedAnswersMock();
 	}
 
 	@Test public void whenAlwaysAnswerYesShouldFindMacarraoFood() {
 
 		new Game(guessManager, GameDataRepository.getInstance().findAll()).run();
-		final Food guess = ((GuessManagerAlwaysAnswerYesMock) guessManager).getRightGuess();
+		final String guess = ((GuessManagerPredefinedAnswersMock) guessManager).getRightGuess();
 
-		Assert.assertEquals("Macarrão", guess.getName());
+		Assert.assertEquals("Macarrão", guess);
 	}
 
 }
