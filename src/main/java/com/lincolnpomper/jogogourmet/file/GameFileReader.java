@@ -1,8 +1,6 @@
 package com.lincolnpomper.jogogourmet.file;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,7 +46,8 @@ class GameFileReader {
 
 		try {
 
-			reader = new BufferedReader(new FileReader(fileName));
+			reader = findFileFromEnvironment(fileName);
+
 			String line;
 
 			// skip header
@@ -91,6 +90,27 @@ class GameFileReader {
 		return list;
 	}
 
+	private BufferedReader findFileFromEnvironment(String fileName) {
+
+		BufferedReader reader = null;
+
+		try {
+			File f = new File(basePath + fileName);
+			if (f.exists() && !f.isDirectory()) {
+				reader = new BufferedReader(new FileReader(basePath + fileName));
+			}
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+
+		if (reader == null) {
+			InputStream in = getClass().getResourceAsStream(File.separator + fileName);
+			reader = new BufferedReader(new InputStreamReader(in));
+		}
+
+		return reader;
+	}
+
 	public enum ResourceType {
 
 		Food("foods.csv");
@@ -98,7 +118,7 @@ class GameFileReader {
 		private String value;
 
 		ResourceType(String value) {
-			this.value = basePath + value;
+			this.value = value;
 		}
 
 		String getValue() {
