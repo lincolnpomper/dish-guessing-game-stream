@@ -20,7 +20,7 @@ public class IntegratedTests {
 		guessManager = new GuessManagerPredefinedAnswersMock();
 	}
 
-	@Test public void whenAlwaysAnswerYesShouldFindMacarraoFood() {
+	@Test public void whenPredefinedAnswerYesNoShouldFindMacarraoFood() {
 
 		new Game(guessManager, GameDataRepository.getInstance().findAll()).run();
 		final String guess = ((GuessManagerPredefinedAnswersMock) guessManager).getRightGuess();
