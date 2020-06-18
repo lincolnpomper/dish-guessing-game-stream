@@ -1,6 +1,6 @@
-package com.lincolnpomper.jogogourmet.data;
+package com.lincolnpomper.dishguessstream.data;
 
-import com.lincolnpomper.jogogourmet.logic.Food;
+import com.lincolnpomper.dishguessstream.logic.Food;
 
 import java.util.HashSet;
 import java.util.Optional;

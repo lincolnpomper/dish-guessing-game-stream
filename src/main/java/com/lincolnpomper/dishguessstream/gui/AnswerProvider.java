@@ -1,4 +1,4 @@
-package com.lincolnpomper.jogogourmet.gui;
+package com.lincolnpomper.dishguessstream.gui;
 
 public interface AnswerProvider {
 

@@ -1,4 +1,4 @@
-package com.lincolnpomper.jogogourmet.logic;
+package com.lincolnpomper.dishguessstream.logic;
 
 public class Answer {
 

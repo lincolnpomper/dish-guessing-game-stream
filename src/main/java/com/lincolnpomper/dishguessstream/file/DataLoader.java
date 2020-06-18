@@ -1,7 +1,7 @@
-package com.lincolnpomper.jogogourmet.file;
+package com.lincolnpomper.dishguessstream.file;
 
-import com.lincolnpomper.jogogourmet.data.GameDataRepository;
-import com.lincolnpomper.jogogourmet.logic.Food;
+import com.lincolnpomper.dishguessstream.data.GameDataRepository;
+import com.lincolnpomper.dishguessstream.logic.Food;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,9 +14,9 @@ public class DataLoader {
 		this.gameDataRepository = gameDataRepository;
 	}
 
-	public void setupData(String basePath) {
+	public void setupData() {
 
-		List<GameFileData> foodsFileData = GameFileReader.getInstance(basePath).getList(GameFileReader.ResourceType.Food);
+		List<GameFileData> foodsFileData = GameFileReader.getInstance().getList(GameFileReader.ResourceType.Food);
 
 		foodsFileData.forEach(data -> gameDataRepository.save(new Food(data)));
 

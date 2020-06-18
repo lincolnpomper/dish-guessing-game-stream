@@ -1,18 +1,16 @@
-package com.lincolnpomper.jogogourmet;
+package com.lincolnpomper.dishguessstream;
 
-import com.lincolnpomper.jogogourmet.data.GameDataRepository;
-import com.lincolnpomper.jogogourmet.file.DataLoader;
-import com.lincolnpomper.jogogourmet.gui.Frame;
-import com.lincolnpomper.jogogourmet.logic.Answer;
-import com.lincolnpomper.jogogourmet.logic.Food;
-import com.lincolnpomper.jogogourmet.logic.Game;
-import com.lincolnpomper.jogogourmet.logic.GuessManager;
+import com.lincolnpomper.dishguessstream.data.GameDataRepository;
+import com.lincolnpomper.dishguessstream.file.DataLoader;
+import com.lincolnpomper.dishguessstream.gui.Frame;
+import com.lincolnpomper.dishguessstream.logic.Answer;
+import com.lincolnpomper.dishguessstream.logic.Food;
+import com.lincolnpomper.dishguessstream.logic.Game;
+import com.lincolnpomper.dishguessstream.logic.GuessManager;
 
 import javax.swing.*;
 
 public class Main implements GuessManager, StartGameManager {
-
-	private static final String BASE_PATH = "src/main/resources/";
 
 	private Frame frame;
 	private Food nextParent;
@@ -34,7 +32,7 @@ public class Main implements GuessManager, StartGameManager {
 	public static void main(String[] args) {
 
 		DataLoader dataLoader = new DataLoader(GameDataRepository.getInstance());
-		dataLoader.setupData(BASE_PATH);
+		dataLoader.setupData();
 
 		new Main();
 	}

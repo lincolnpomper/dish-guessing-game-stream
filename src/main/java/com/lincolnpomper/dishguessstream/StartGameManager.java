@@ -1,4 +1,4 @@
-package com.lincolnpomper.jogogourmet;
+package com.lincolnpomper.dishguessstream;
 
 public interface StartGameManager {
 

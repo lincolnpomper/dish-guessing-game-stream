@@ -1,4 +1,4 @@
-package com.lincolnpomper.jogogourmet.file;
+package com.lincolnpomper.dishguessstream.file;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,7 +8,6 @@ import java.util.Map;
 
 class GameFileReader {
 
-	private static String basePath;
 	private static final String SEPARATOR = ",";
 	private static GameFileReader me;
 
@@ -18,9 +17,7 @@ class GameFileReader {
 	private GameFileReader() {
 	}
 
-	static GameFileReader getInstance(String basePath) {
-
-		GameFileReader.basePath = basePath;
+	static GameFileReader getInstance() {
 
 		if (me == null) {
 			me = new GameFileReader();
@@ -95,9 +92,9 @@ class GameFileReader {
 		BufferedReader reader = null;
 
 		try {
-			File f = new File(basePath + fileName);
+			File f = new File(fileName);
 			if (f.exists() && !f.isDirectory()) {
-				reader = new BufferedReader(new FileReader(basePath + fileName));
+				reader = new BufferedReader(new FileReader(fileName));
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();

@@ -1,4 +1,4 @@
-package com.lincolnpomper.jogogourmet.file;
+package com.lincolnpomper.dishguessstream.file;
 
 import java.util.Arrays;
 

@@ -1,4 +1,4 @@
-package com.lincolnpomper.jogogourmet.logic;
+package com.lincolnpomper.dishguessstream.logic;
 
 class FoodGuess extends Food {
 

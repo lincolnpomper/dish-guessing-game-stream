@@ -1,6 +1,6 @@
-package com.lincolnpomper.jogogourmet.logic;
+package com.lincolnpomper.dishguessstream.logic;
 
-import com.lincolnpomper.jogogourmet.file.GameFileData;
+import com.lincolnpomper.dishguessstream.file.GameFileData;
 
 import java.util.Objects;
 

@@ -1,4 +1,4 @@
-package com.lincolnpomper.jogogourmet.logic;
+package com.lincolnpomper.dishguessstream.logic;
 
 import java.util.Optional;
 import java.util.Set;
