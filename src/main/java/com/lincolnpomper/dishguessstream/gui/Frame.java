@@ -30,7 +30,7 @@ public class Frame extends JFrame implements MouseListener, AnswerProvider {
 
 	public Frame(StartGameManager startGameManager) {
 
-		super("Jogo Gourmet");
+		super("Jogo de adivinhação de prato");
 
 		this.startGameManager = startGameManager;
 
